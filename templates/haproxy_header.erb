@@ -1,21 +1,25 @@
 global
-    log <%= scope.lookupvar('haproxy::logserver') -%> <%= scope.lookupvar('haproxy::syslog_facility') %>
-    stats socket <%= scope.lookupvar('haproxy::params::sock') %> mode 0600 level admin
-    maxconn 4096
-    user <%= scope.lookupvar('haproxy::haproxy_user_group') %>
-    group <%= scope.lookupvar('haproxy::haproxy_user_group') %>
-    daemon
+<% @global_options.sort.each do |key,val| -%>
+<% if val.is_a?(Array) -%>
+<% val.each do |item| -%>
+	<%= key %>	<%= item %>
+<% end -%>
+<% else -%>
+	<%= key %>	<%= val %>
+<% end -%>
+<% end -%>
 
 defaults
-    log global
-    mode <%= scope.lookupvar('haproxy::default_mode') %>
-<% scope.lookupvar('haproxy::array_options').each do |option| -%>
-<% if option != '' -%>
-    option <%= option %>
+<% @defaults_options.sort.each do |key,val| -%>
+<% if val.is_a?(Array) -%>
+<% val.each do |item| -%>
+	<%= key %>	<%= item %>
+<% end -%>
+<% else -%>
+	<%= key %>	<%= val %>
 <% end -%>
 <% end -%>
-    retries <%= scope.lookupvar('haproxy::retries') %>
-    maxconn <%= scope.lookupvar('haproxy::maxconn') %>
-    contimeout  <%= scope.lookupvar('haproxy::contimeout') %>
-    clitimeout  <%= scope.lookupvar('haproxy::clitimeout') %>
-    srvtimeout  <%= scope.lookupvar('haproxy::srvtimeout') %>
+<% if @custom_fragment -%>
+
+<%= @custom_fragment %>
+<% end -%>
