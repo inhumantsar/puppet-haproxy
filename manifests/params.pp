@@ -1,10 +1,10 @@
 class haproxy::params {
 
-  $package_name       = 'haproxy'
-  $hatop_package_name = 'hatop'
-  $sock               = '/var/run/haproxy/haproxy.sock'
-  $config_dir         = '/etc/haproxy/'
-  $default_config     = '/etc/default/haproxy'
-  $service_name       = 'haproxy'
-  $archive_logdir     = '/var/log'
+	$package_name		 = 'haproxy'
+	$sock				 = '/var/run/haproxy/haproxy.sock'
+	$config_dir			 = '/etc/haproxy/'
+	$default_config		 = '/etc/default/haproxy'
+	$service_name		 = 'haproxy'
+	$archive_logdir		 = '/var/log'
+    
 }
