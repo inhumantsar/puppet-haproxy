@@ -40,7 +40,7 @@ class haproxy
 		'stats'	    => 'enable',
 		'option'	=> 'redispatch',
 	    'retries'   => '3',
-	    'maxconn'   => '8000'
+	    'maxconn'   => '8000',
     	'timeout'   => [
 			'http-request 10s',
 			'queue 1m',
