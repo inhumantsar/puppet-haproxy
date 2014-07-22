@@ -2,168 +2,123 @@
 #
 # This class install HaProxy with some configurable params
 #
-# == Params
+# == Params TODO
 #
-# [*service_ensure*]
-#   status of the service. Boolean or running|stopped. Default: running
+# [*paramname*]
+#	 some stuff about the param
 #
-# [*service_enable*]
-#   service enabled by default. Boolean. Default: true
-#
-# [*log_dir*]
-#   false do not log on file. otherwise path of directory where haproxy should log (syslog_facility become mandatory). If not false logrotate will be enabled. Default: /var/log/haproxy
-#
-# [*logserver*]
-#   syslog server address. Default: 127.0.0.1
-#
-# [*file_template*]
-#   template used to override default configuration
-#
-# [*syslog_facility*]
-#   facility used to log on rsyslog. Default: local1
-#
-# [*enable_stats*]
-#   enable stats page. Default: true
-#
-# [*enable_hatop*]
-#   enable hatop by installing package and setting user/group to root. Default: true
-#
-# [*maxconn*]
-#   global maxconn
-#
-# [*contimeout*]
-#   haproxy param. Default: 5000
-#
-# [*clitimeout*]
-#   haproxy param. Default: 50000
-#
-# [*srvtimeout*]
-#   haproxy param. Default: 50000
-#
-# [*retries*]
-#   haproxy param. Default: 3
-#
-# [*default_mode*]
-#   default mode of use. It can be tcp|http. Default: tcp
-#
-# [*options*]
-#   array of options to enable on global section. Default: ''
-#
-# [*stats_user*]
-#   username to use for access stats. Default: haproxystats
-#
-# [*stats_pass*]
-#  password to user for access stats
-#
-# [*monitor*]
-#   enable monitor of process haproxy and hastats
-#
-# [*nagios_hostname*]
-#   hostname of nagios server used for monitoring. Default: global variable $nagios_hostname
-#
-class haproxy (
-  $service_ensure   = running,
-  $service_enable   = true,
-  $log_dir          = '/var/log/haproxy',
-  $logserver        = '127.0.0.1',
-  $file_template    = '',
-  $syslog_facility  = 'local1',
-  $enable_stats     = true,
-  $enable_hatop     = true,
-  $maxconn          = 2000,
-  $contimeout       = 5000,
-  $clitimeout       = 50000,
-  $srvtimeout       = 50000,
-  $retries          = 2,
-  $srvtimeout       = 50000,
-  $default_mode     = 'tcp',
-  $options          = '',
-  $stats_user       = 'haproxystats',
-  $stats_pass       = '',
-  $monitor          = true,
-  $nagios_hostname  = $nagios_hostname,
-) {
+class haproxy 
+(
+    $package_name       	= 'haproxy',
+    $service_name       	= 'haproxy',
+	$service_ensure	    	= 'running',
+	$service_enable	    	= true,
+    $service_reload     	= true,
+    $service_user       	= 'haproxy',
+    $service_group      	= 'haproxy',
+    $sock_path          	= '/var/run/haproxy/haproxy.sock',
+	$log_dir				= '/var/log/haproxy',
+    $archive_log_dir    	= '/var/log',
+    $config_dir         	= '/etc/haproxy',
+    $default_config_path 	= '/etc/default/haproxy',
+	$enable_stats			= true,
+	$stats_user				= 'haproxystats',
+	$stats_pass				= '',
+	$enable_hatop			= true,
+    $global_options         = {
+        'log'     => "127.0.0.1 local0",
+        'chroot'  => '/var/lib/haproxy',
+        'pidfile' => '/var/run/haproxy.pid',
+        'maxconn' => '4000',
+        'user'    => 'haproxy',
+        'group'   => 'haproxy',
+        'daemon'  => '',
+        'stats'   => 'socket /var/lib/haproxy/stats'
+    },
+	$defaults_options = {
+		'log'       => 'global',
+		'stats'	    => 'enable',
+		'option'	=> 'redispatch',
+	    'retries'   => '3',
+	    'maxconn'   => '8000'
+    	'timeout'   => [
+			'http-request 10s',
+			'queue 1m',
+			'connect 10s',
+			'client 1m',
+			'server 1m',
+			'check 10s',
+		],
+	},
+) 
+{
 
-  include haproxy::params
-
-  if $log_dir != false {
-    validate_absolute_path($log_dir)
-  }
-
-  validate_bool($enable_stats)
-  validate_bool($enable_hatop)
-  validate_bool($monitor)
-  validate_bool($service_enable)
-
-  if ($service_ensure != false) and ($service_ensure != true) and ($service_ensure != 'running') and ($service_ensure != 'stopped') {
-    fail ('service_ensure must be boolean or running|stopped')
-  }
-
-  if !is_integer($maxconn) {
-    fail ('maxconn should be an integer value')
-  }
-
-  if !is_integer($contimeout) {
-    fail ('contimeout should be an integer value')
-  }
-
-  if !is_integer($clitimeout) {
-    fail ('clitimeout should be an integer value')
-  }
-
-  if !is_integer($srvtimeout) {
-    fail ('srvtimeout should be an integer value')
-  }
-
-  if ($default_mode != 'http') and ($default_mode != 'tcp') {
-    fail ('default_mode must be one of http|tcp')
-  }
-
-  if ($enable_stats and (($stats_user == '') or ($stats_pass == ''))) {
-    fail('if enable_stats is true you must specify stats_user and stats_pass')
-  }
-
-  if ($monitor) and ($nagios_hostname=='') {
-    fail ('if monitor is true you have to specify nagios_hostname')
-  }
-
-  if !$syslog_facility {
-    fail ('Please specify a syslog_facility')
-  }
-
-  $array_options = is_array($options)? {
-    true  => $options,
-    false => [ $options ]
-  }
-
-  $haproxy_user_group = $enable_hatop ? {
-    true  => 'root',
-    false => 'haproxy'
-  }
-
-  if $log_dir != '' {
-    rsyslog::facility { '11-haproxy':
-      log_file      => "haproxy.log",
-      logdir        => $log_dir,
-      file_template => 'haproxy/rsyslog_facility.erb',
-      create        => '644 syslog adm',
-      logrotate     => false
+    ##############################################
+    ### Parameter Validation & Prep
+    ##############################################
+    if !$package_name { fail('Please specify a package_name.') }
+    if !$service_name { fail('Please specify a service_name.') }
+	if ($service_ensure != false) and ($service_ensure != true) and ($service_ensure != 'running') and ($service_ensure != 'stopped') {
+		fail ('service_ensure must be boolean or running|stopped')
+	}
+	validate_bool($service_enable)
+    validate_bool($service_reload)
+    if !$service_user { fail('Please specify a service_user.') }
+    if !$service_group { fail('Please specify a service_group.') }
+	validate_absolute_path($sock_path)
+	validate_absolute_path($log_dir)
+	validate_absolute_path($archive_log_dir)
+	validate_absolute_path($config_dir)
+	validate_absolute_path($default_config_path)
+	validate_bool($enable_stats)
+	if ($enable_stats and (($stats_user == '') or ($stats_pass == ''))) {
+		fail('if enable_stats is true you must specify stats_user and stats_pass')
+	}
+	validate_bool($enable_hatop)
+    if (!$global_options or $global_options == {} or $global_options == '') {
+        fail('global_options empty or malformed.')
     }
-    include haproxy::logrotate
-  }
-
-  include haproxy::install
-  include haproxy::config
-  include haproxy::service
-
-  Class['haproxy::install'] ->
-  Class['haproxy::config'] ->
-  Class['haproxy::service']
+    if (!$defaults_options or $defaults_options == {} or $defaults_options == '') {
+        fail('defaults_options empty or malformed.')
+    }
 
 
-  if defined(Class['heartbeat']) {
-    Class['heartbeat'] ->
-    Class['haproxy::service']
-  }
+    ##############################################
+    ### Logging
+    ##############################################
+	if $log_dir != '' {
+        $log_file = 'haproxy.log'
+        file { '/etc/rsyslog.d/haproxy.conf' :
+            ensure          => present,
+            owner           => 'root',
+            group           => 'root',
+            mode            => '0644',
+            content         => template('haproxy/rsyslog_facility.erb'),
+        }
+		class { 'haproxy::logrotate' :
+            log_dir => $log_dir,
+        }
+	}
+
+    ##############################################
+    ### The Meat
+    ##############################################
+    class { 'haproxy::install' :
+        package_name        => $package_name,
+    } ->
+    class { 'haproxy::config' :
+        log_dir             => $log_dir,
+        config_dir          => $config_dir,
+        default_config_path => $default_config_path,
+        service_enable      => $service_enable,
+        $service_user       => $service_user,
+        $service_group      => $service_group,
+    } ->
+    class { 'haproxy::service' :
+        service_name        => $service_name,
+        service_enable      => $service_enable,
+        service_ensure      => $service_ensure,
+        service_reload      => $service_reload,
+    }
 
 }

@@ -1,6 +1,10 @@
-class haproxy::install {
+class haproxy::install 
+(
+    $package_name,
+)
+{
 
-	package { $haproxy::params::package_name :
+	package { $package_name :
 		ensure	=> present,
 	}
 

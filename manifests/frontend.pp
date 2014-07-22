@@ -36,7 +36,7 @@ define haproxy::frontend (
 	$file_template		= 'haproxy/haproxy_frontend_header.erb',
 	$mode				= 'tcp',
 	$options			= '',
-	$own_logfile        = false,
+	$own_logfile				= false,
 ) {
 
 	if ($mode != 'http') and ($mode != 'tcp') {
@@ -58,7 +58,7 @@ define haproxy::frontend (
 		default => [ $options ],
 	}
 
-    #### Ditching this check as bind IPs could be followed by a : or be replaced by a *	
+		#### Ditching this check as bind IPs could be followed by a : or be replaced by a *	
 	#$string_binds = inline_template('<% array_bind.each do |bind| -%><%= bind %> <% end -%>')
 	#if $string_binds !~ /([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\ )+$/ {
 	#	fail('invalid ip_address value present in bind')
