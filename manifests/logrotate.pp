@@ -1,6 +1,6 @@
 # = Class haproxy::logrotate
 #
-# This class enable logorotate of logfile created by haproxy
+# This class enables logorotate of logfile created by haproxy
 #
 class haproxy::logrotate
 (
