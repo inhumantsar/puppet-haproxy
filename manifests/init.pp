@@ -111,8 +111,8 @@ class haproxy
         config_dir          => $config_dir,
         default_config_path => $default_config_path,
         service_enable      => $service_enable,
-        $service_user       => $service_user,
-        $service_group      => $service_group,
+        service_user        => $service_user,
+        service_group       => $service_group,
     } ->
     class { 'haproxy::service' :
         service_name        => $service_name,
