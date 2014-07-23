@@ -21,7 +21,7 @@ define haproxy::backend (
 	$file_template	= 'haproxy/haproxy_backend_header.erb',
 	$options		= {
         'balance'   => 'roundrobin',
-    }
+    },
 	$mode			= 'http',
 ) {
 
