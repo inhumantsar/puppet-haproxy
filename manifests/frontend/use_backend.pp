@@ -27,6 +27,10 @@ define haproxy::frontend::use_backend (
     fail ("No Haproxy::Frontend[$frontend_name] is defined!")
   }
 
+  if !is_array($if_acl) {
+    $if_acl = [ $if_acl ]
+  }
+
   concat_fragment { "haproxy+003-${frontend_name}-004-${name}.tmp":
     content => template($file_template),
   }
