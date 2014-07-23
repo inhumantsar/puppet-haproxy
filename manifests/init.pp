@@ -25,17 +25,8 @@ class haproxy
 	$stats_user				= 'haproxystats',
 	$stats_pass				= '',
 	$enable_hatop			= true,
-    $global_options         = {
-        'log'     => "127.0.0.1 local0",
-        'chroot'  => '/var/lib/haproxy',
-        'pidfile' => '/var/run/haproxy.pid',
-        'maxconn' => '4000',
-        'user'    => 'haproxy',
-        'group'   => 'haproxy',
-        'daemon'  => '',
-        'stats'   => 'socket /var/lib/haproxy/stats'
-    },
-	$defaults_options = {
+    $global_options         = {},
+	$defaults_options       = {
 		'log'       => 'global',
 		'stats'	    => 'enable',
 		'option'	=> 'redispatch',
@@ -52,6 +43,23 @@ class haproxy
 	},
 ) 
 {
+
+    ## This is here so we can merge in overrides later.
+    ## If someone only wanted to override one part of this,
+    ## they would have to copy out the whole thing into
+    ## their class without the merge function.
+    ## defaults_options can just overridden entirely
+    ## without breaking anything.
+    $global_options_defaults    = {
+        'log'     => "127.0.0.1 local0",
+        'chroot'  => '/var/lib/haproxy',
+        'pidfile' => '/var/run/haproxy.pid',
+        'maxconn' => '4000',
+        'user'    => 'haproxy',
+        'group'   => 'haproxy',
+        'daemon'  => '',
+        'stats'   => 'socket /var/lib/haproxy/stats'
+    }
 
     ##############################################
     ### Parameter Validation & Prep
@@ -75,9 +83,11 @@ class haproxy
 		fail('if enable_stats is true you must specify stats_user and stats_pass')
 	}
 	validate_bool($enable_hatop)
-    if (!$global_options or $global_options == {} or $global_options == '') {
+    if (!$global_options  or $global_options == '') {
         fail('global_options empty or malformed.')
     }
+    $global_options = merge($global_options_defaults, $global_options)
+    
     if (!$defaults_options or $defaults_options == {} or $defaults_options == '') {
         fail('defaults_options empty or malformed.')
     }
