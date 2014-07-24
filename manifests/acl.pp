@@ -19,7 +19,7 @@
 # [*file_template*]
 #	 if customized template should be used to override default template.
 #
-define haproxy::frontend::acl (
+define haproxy::acl (
 	$frontend_name,
 	$condition,
 	$acl_name       = '',
