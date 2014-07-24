@@ -86,7 +86,7 @@ class haproxy
     if (!$global_options  or $global_options == '') {
         fail('global_options empty or malformed.')
     }
-    $global_options = merge($global_options_defaults, $global_options)
+    $global_options_merged = merge($global_options_defaults, $global_options)
     
     if (!$defaults_options or $defaults_options == {} or $defaults_options == '') {
         fail('defaults_options empty or malformed.')
@@ -123,6 +123,8 @@ class haproxy
         service_enable      => $service_enable,
         service_user        => $service_user,
         service_group       => $service_group,
+        global_options      => $global_options_merged,
+        defaults_options    => $defaults_options,
     } ->
     class { 'haproxy::service' :
         service_name        => $service_name,
