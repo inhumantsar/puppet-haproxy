@@ -35,7 +35,7 @@ define haproxy::frontend (
 		fail ('mode paramater must be http or tcp')
 	}
 
-	$frontend_name = $frontend_name ? {
+	$fe_name = $frontend_name ? {
 		''		=> $name,
 		default => $frontend_name,
 	}
