@@ -7,17 +7,20 @@ class haproxy::logrotate
     $log_dir,
 )
 {
-	logrotate::file { 'haproxy':
-		log             => "${log_dir}/*.log",
-		interval		=> 'daily',
-		rotation		=> '930',
-		options			=> [ 'missingok', 'compress', 'notifempty', 'sharedscripts' ],
-		archive			=> true,
-		olddir			=> "${log_dir}/archives",
-		olddir_owner	=> 'root',
-		olddir_group	=> 'users',
-		olddir_mode     => '655',
-		create			=> '640 syslog adm',
-		postrotate		=> 'invoke-rc.d rsyslog reload',
-	}
+    logrotate::rule { 'haproxy' :
+        path            => "${log_dir}/*.log",
+        olddir          => "${log_dir}/archives",
+        create          => true,
+        create_mode     => '0640',
+        create_owner    => 'syslog',
+        create_group    => 'adm',
+        compress        => true,
+        rotate_every    => 'day',
+        rotate          => '90',
+        missingok       => true,
+        ifempty         => false,
+        sharedscripts   => true,
+        postrotate      => 'invoke-rc.d rsyslog reload',
+    }
+        
 }

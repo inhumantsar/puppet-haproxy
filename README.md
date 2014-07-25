@@ -2,6 +2,13 @@ puppet-haproxy
 ==============
 
 This module will manage HAProxy installation and configurations. Configuration is broken up into parts (frontend, backend, acls, etc.) to save on code reuse. This is a fork of the [fpizzurro/puppet-haproxy](https://github.com/fpizzurro/puppet-haproxy) project but has been heavily modified to provide more flexibility. Significant portions of the templates used in this project were inspired by (or in some cases, lifted directly from) the [puppetlabs-haproxy](https://github.com/puppetlabs/puppetlabs-haproxy) project.
+
+## Requirements
+* stdlib (for merge and concat functions)
+* concat
+
+## Tested on
+* Nothing yet! CentOS 6 soon.
  
 ## haproxy
 

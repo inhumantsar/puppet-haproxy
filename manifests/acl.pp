@@ -61,8 +61,10 @@ define haproxy::acl (
 	}
 
 
-	concat_fragment { "haproxy+003-${frontend_name}-003-${name}.tmp":
+	concat::fragment { "haproxy+003-${frontend_name}-003-${name}.tmp":
 		content => template($file_template),
+        target  => "${haproxy::config_dir}/haproxy.cfg",
+        order   => '303',
 	}
 
 	if $use_backend != '' and ($target_type == 'listen' or $target_type == 'frontend') {

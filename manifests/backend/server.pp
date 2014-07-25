@@ -71,8 +71,10 @@ define haproxy::backend::server
 		default => "${host}:${port}",
 	}
 
-	concat_fragment {"haproxy+002-${backend}-005-${server_name}.tmp":
+	concat::fragment {"haproxy+002-${backend}-005-${server_name}.tmp":
 		content => template($file_template),
+        target  => "${haproxy::config_dir}/haproxy.cfg",
+        order   => '205',
 	}
 }
 

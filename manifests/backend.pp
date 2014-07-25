@@ -34,8 +34,10 @@ define haproxy::backend (
 		default => $backend_name
 	}
 
-	concat_fragment {"haproxy+002-${name}-001.tmp":
+	concat::fragment {"haproxy+002-${name}-001.tmp":
 		content => template($file_template),
+        target  => "${haproxy::config}/haproxy.cfg",
+        order   => '201',
 	}
 
 }

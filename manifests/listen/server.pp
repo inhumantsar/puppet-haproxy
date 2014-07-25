@@ -101,7 +101,9 @@ define haproxy::listen::server (
     default => $server_name,
   }
 
-  concat_fragment {"haproxy+004-${listen_name}-002-${name}.tmp":
+  concat::fragment {"haproxy+004-${listen_name}-002-${name}.tmp":
     content => template($file_template),
+    target  => "${haproxy::config_dir}/haproxy.cfg",
+    order   => '402',
   }
 }

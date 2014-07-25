@@ -20,21 +20,17 @@ class haproxy::config
 		}
 	}
 
-	file { "${config_dir}/haproxy.cfg":
+	concat { "${config_dir}/haproxy.cfg" :
 		ensure  => present,
-		mode	=> 664,
+		mode	=> '0664',
 		owner	=> 'root',
 		group	=> 'root',
-		require => Concat_build['haproxy']
-	}
+    }
 
-	concat_build { 'haproxy':
-		order   => ['*.tmp'],
-		target	=> "${config_dir}/haproxy.cfg",
-	}
-
-	concat_fragment { 'haproxy+001.tmp':
+	concat::fragment { 'haproxy-config-header':
 		content => template('haproxy/haproxy_header.erb'),
+        target  => "${config_dir}/haproxy.cfg",
+        order   => '100',
 	}
 
 	$enabled = $service_enable ? {

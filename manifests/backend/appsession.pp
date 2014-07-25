@@ -45,8 +45,10 @@ define haproxy::backend::appsession (
     default => [ $options ]
   }
 
-  concat_fragment{"haproxy+002-${backend_name}-002-${name}.tmp":
+  concat::fragment{"haproxy+002-${backend_name}-002-${name}.tmp":
     content => template($file_template),
+    target  => "${haproxy::config}/haproxy.cfg",
+    order   => '202',
   }
 
 }
