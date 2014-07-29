@@ -20,20 +20,19 @@ define haproxy::frontend::use_backend (
   $frontend_name,
   $backend_name,
   $if_acl,
-  $file_template  = 'haproxy/use_backend.erb'
+  $file_template  = 'haproxy/fragment_use_backend.erb'
 ) 
 {
-	if !defined(Haproxy::Frontend[$target_name]) {
-	    fail ("Haproxy::Frontend[$target_name] is not defined!")
-	}
-
     if !is_array($if_acl) {
         $if_acl = [ $if_acl ]
     }
 
-    concat::fragment { "haproxy+003-${frontend_name}-004-${name}.tmp":
+    @@concat::fragment { "fe-${frontend_name}_acl-${if_acl}_be-${backend_name}":
+        tag     => "frontendblock_${frontend_name}",
         content => template($file_template),
-        target  => "${haproxy::config_dir}/haproxy.cfg",
-        order   => '304',
+        #target  => "${haproxy::config_dir}/haproxy.cfg",
+        target  => "/tmp/haproxy_frontend_${frontend_name}.tmp",
+        order   => '303',
+        #require => [ Haproxy::Frontend[$frontend_name], Haproxy::Backend[$backend_name], ],
     }
 }

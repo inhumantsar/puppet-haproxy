@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /usr/local
+cd /tmp/
 tar xvfz hatop-0.7.7.tar.gz
 cd hatop-0.7.7
 install -m 755 bin/hatop /usr/local/bin

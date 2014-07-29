@@ -45,10 +45,21 @@ define haproxy::frontend (
 		default => [ $bind ],
 	}
 
-	concat::fragment {"haproxy+003-${name}-001.tmp":
+    concat { "/tmp/haproxy_frontend_${fe_name}.tmp" : }
+
+	@@concat::fragment { "${fe_name}_frontend_header":
 		content => template($file_template),
-        target  => "${haproxy::config_dir}/haproxy.cfg",
-        order   => '301',
+        tag     => [ "frontendblock_${fe_name}" ],
+        #target  => "${haproxy::config_dir}/haproxy.cfg",
+        target  => "/tmp/haproxy_frontend_${fe_name}.tmp",
+        order   => '300',
 	}
+
+    Concat::Fragment <<| tag == "frontendblock_${fe_name}" |>>
+
+    concat::fragment { "${fe_name}_frontend_block" :
+        source  => "/tmp/haproxy_frontend_${fe_name}.tmp",
+        target  => "${haproxy::config_dir}/haproxy.cfg",
+    }
 
 }

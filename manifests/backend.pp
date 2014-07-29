@@ -23,20 +23,21 @@ define haproxy::backend (
         'balance'   => 'roundrobin',
     },
 	$mode			= 'http',
+    $haproxy_config = '/etc/haproxy/haproxy.cfg',
 ) {
 
 	if ($mode != 'http') and ($mode != 'tcp') {
 		fail ('mode paramater must be http or tcp')
 	}
 
-	$backend_name = $backend_name ? {
+	$be_name = $backend_name ? {
 		''		=> $name,
 		default => $backend_name
 	}
 
 	concat::fragment {"haproxy+002-${name}-001.tmp":
 		content => template($file_template),
-        target  => "${haproxy::config}/haproxy.cfg",
+        target  => "${haproxy_config}",
         order   => '201',
 	}
 

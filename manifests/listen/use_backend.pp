@@ -20,20 +20,17 @@ define haproxy::listen::use_backend (
   $listen_name,
   $backend_name,
   $if_acl,
-  $file_template  = 'haproxy/use_backend.erb'
+  $file_template  = 'haproxy/fragment_use_backend.erb'
 ) 
 {
-	if !defined(Haproxy::Listen[$target_name]) {
-	    fail ("Haproxy::Listen[$target_name] is not defined!")
-	}
-
     if !is_array($if_acl) {
         $if_acl = [ $if_acl ]
     }
 
-    concat::fragment { "haproxy+003-${listen_name}-004-${name}.tmp":
+    concat::fragment { "${listen_name}_listen_block" :
         content => template($file_template),
         target  => "${haproxy::config_dir}/haproxy.cfg",
         order   => '304',
+        require => [ Haproxy::Listen[$listen_name], Haproxy::Backend[$backend_name] ],
     }
 }
