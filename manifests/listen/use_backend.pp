@@ -1,4 +1,4 @@
-# = Define haproxy::listen::use_backend
+# = Define haproxy:listen::use_backend
 #
 # This define add a use_backend directive if an acl is matched
 #
@@ -27,10 +27,11 @@ define haproxy::listen::use_backend (
         $if_acl = [ $if_acl ]
     }
 
-    concat::fragment { "${listen_name}_listen_block" :
+    @@concat::fragment { "ls-${listen_name}_acl-${if_acl}_be-${backend_name}":
+        tag     => "listenblock_${listen_name}",
         content => template($file_template),
-        target  => "${haproxy::config_dir}/haproxy.cfg",
-        order   => '304',
-        require => [ Haproxy::Listen[$listen_name], Haproxy::Backend[$backend_name] ],
+        #target  => "${haproxy::config_dir}/haproxy.cfg",
+        target  => "/tmp/haproxy_listen_${listen_name}.tmp",
+        order   => '303',
     }
 }

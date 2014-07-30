@@ -1,8 +1,8 @@
 
 frontend <%= fe_name %>
-    mode <%= mode -%>
-<% array_bind.each do |bind| %>
+    mode <%= mode %>
+<% array_bind.each do |bind| -%>
     bind <%= bind %>
-<% end %>
+<% end -%>
 <%= scope.function_template(['haproxy/fragment_options.erb']) -%>
     default_backend <%= default_backend %>

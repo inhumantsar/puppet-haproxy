@@ -33,21 +33,20 @@ define haproxy::listen::acl (
 		default => $acl_name,
 	}
 
-	concat::fragment { "${listen_name}_listen_block" :
+	@@concat::fragment { "${listen_name}_acl_${acl}":
 		content => template($file_template),
-        target  => "${haproxy::config_dir}/haproxy.cfg",
-        order   => '303',
-        require => Haproxy::Listen[$listen_name],
+        tag     => "listenblock_${listen_name}",
+        target  => "/tmp/haproxy_listen_${listen_name}.tmp",
+        order   => '302',
 	}
 
 	if $use_backend != '' {
         $acls = concat([ $acl ], $extra_acls)
 		
 		haproxy::listen::use_backend { "listen-${use_backend}-${acl}":
-			listen_name     => $listen_name,
+			listen_name   => $listen_name,
 			backend_name	=> $use_backend,
 			if_acl			=> $acls,
-            require         => [ Haproxy::Listen[$listen_name], Haproxy::Backend[$use_backend] ],
 		}
 	}
 

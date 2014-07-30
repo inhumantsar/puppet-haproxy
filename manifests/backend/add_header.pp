@@ -24,16 +24,12 @@
 #
 define haproxy::backend::add_header (
 	$backend_name,
-	$header_name	  = '',
-	$file_template	= 'haproxy/backend/add_header.erb',
-	$type	         = 'req',
+	$header_name	= '',
+	$file_template  = 'haproxy/backend/add_header.erb',
+	$type	        = 'req',
 	$value	        = '',
-	$acl	          = '',
+	$acl	        = '',
 ) {
-
-	if !defined(Haproxy::Backend[$backend_name]) {
-		fail ("No Haproxy::Backend[$backend_name] is defined!")
-	}
 
 	if ($type != 'req') and ($type != 'resp') {
 		fail('Type must be req|resp. Please specify correctly!')
@@ -54,11 +50,11 @@ define haproxy::backend::add_header (
 		default => ":\\ $value",
 	}
 
-	concat::fragment { "haproxy+002-${backend_name}-004-${name}":
-		content => template($file_template),
-        target  => "${haproxy::config_dir}/haproxy.cfg",
-        order   => '204',
-	}
-
+    @@concat::fragment { "${backend_name}_add_header_${header}":
+        content => template($file_template),
+        tag     => "backendblock_${backend_name}",
+        target  => "/tmp/haproxy_backend_${backend_name}.tmp",
+        order   => '202',
+    }
 
 }

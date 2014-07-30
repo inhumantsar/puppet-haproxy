@@ -36,10 +36,8 @@ define haproxy::frontend::acl (
 	@@concat::fragment { "${frontend_name}_acl_${acl}":
 		content => template($file_template),
         tag     => "frontendblock_${frontend_name}",
-        #target  => "${haproxy::config_dir}/haproxy.cfg",
         target  => "/tmp/haproxy_frontend_${frontend_name}.tmp",
         order   => '302',
-        #require => Haproxy::Frontend[$frontend_name],
 	}
 
 	if $use_backend != '' {
@@ -49,7 +47,6 @@ define haproxy::frontend::acl (
 			frontend_name   => $frontend_name,
 			backend_name	=> $use_backend,
 			if_acl			=> $acls,
-            #require         => [ Haproxy::Backend[$use_backend], Haproxy::Frontend[$frontend_name], ],
 		}
 	}
 

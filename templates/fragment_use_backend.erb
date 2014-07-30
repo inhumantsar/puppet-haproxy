@@ -1,1 +1,1 @@
-    use_backend <%= backend_name -%>        if <% @if_acl.each do |acl| -%><%= acl -%><% end %>
+    use_backend <%= backend_name -%>        if <% @if_acl.each do |acl| -%><%= acl -%> <% end %>

@@ -53,10 +53,22 @@ define haproxy::listen (
 		fail('invalid ip_address value present in bind')
 	}
 
-	concat::fragment { "${ls_name}_listen_block" :
+    concat { "/tmp/haproxy_listen_${ls_name}.tmp" : }
+
+    @@concat::fragment { "${ls_name}_listen_header":
+        content => template($file_template),
+        tag     => "listenblock_${ls_name}",
+        target  => "/tmp/haproxy_listen_${ls_name}.tmp",
+        order   => '300',
+    }
+
+    Concat::Fragment <<| tag == "listenblock_${ls_name}" |>>
+
+    concat::fragment { "${ls_name}_listen_block" :
+        source  => "/tmp/haproxy_listen_${ls_name}.tmp",
         target  => "${haproxy::config_dir}/haproxy.cfg",
-		content => template($file_template),
-        order   => '400',
-	}
+        order   => '104',
+    }
+
 
 }

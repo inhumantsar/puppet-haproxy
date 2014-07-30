@@ -23,28 +23,20 @@ define haproxy::backend::acl (
 	$backend_name,
 	$condition,
 	$acl_name       = '',
-	$use_backend	= '',
 	$extra_acls		= [],
 	$file_template	= 'haproxy/fragment_acl.erb'
 ) {
-
-    if !defined(Haproxy::Backend[$backend_name]) {
-        fail ("Haproxy::Backend[$backend_name] is not defined!")
-    }
-    if $use_backend != '' {
-        warn ('It is utterly futile to try and specify use_backend for a backend ACL. This parameter will be ignored hard.')
-    }
 
 	$acl = $acl_name ? {
 		''		=> $name,
 		default => $acl_name,
 	}
 
-	concat::fragment { "haproxy+003-${backend_name}-003-${name}.tmp":
-		content => template($file_template),
-        target  => "${haproxy::config_dir}/haproxy.cfg",
-        order   => '303',
-	}
-
+    @@concat::fragment { "${backend_name}_acl_${acl}":
+        content => template($file_template),
+        tag     => "backendblock_${backend_name}",
+        target  => "/tmp/haproxy_backend_${backend_name}.tmp",
+        order   => '201',
+    }
 
 }

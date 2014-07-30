@@ -17,15 +17,15 @@
 #	 haproxy mode directive. Can be http or tcp. Default http
 #
 define haproxy::backend (
-	$backend_name	= '',
-	$file_template	= 'haproxy/haproxy_backend_header.erb',
-	$options		= {
+	$backend_name	    = '',
+	$file_template	    = 'haproxy/haproxy_backend_header.erb',
+	$options		    = {
         'balance'   => 'roundrobin',
     },
-	$mode			= 'http',
-    $haproxy_config = '/etc/haproxy/haproxy.cfg',
-) {
-
+	$mode			    = 'http',
+    $servers            = {},
+) 
+{
 	if ($mode != 'http') and ($mode != 'tcp') {
 		fail ('mode paramater must be http or tcp')
 	}
@@ -35,11 +35,25 @@ define haproxy::backend (
 		default => $backend_name
 	}
 
-	concat::fragment {"haproxy+002-${name}-001.tmp":
-		content => template($file_template),
-        target  => "${haproxy_config}",
-        order   => '201',
-	}
+    concat { "/tmp/haproxy_backend_${be_name}.tmp" : }
+
+    @@concat::fragment { "${be_name}_backend_header":
+        content => template($file_template),
+        tag     => "backendblock_${be_name}",
+        target  => "/tmp/haproxy_backend_${be_name}.tmp",
+        order   => '200',
+    }
+
+    $server_defaults = { 'backend' => "${be_name}" }
+    create_resources('haproxy::backend::server', $servers, $server_defaults)
+
+    Concat::Fragment <<| tag == "backendblock_${be_name}" |>>
+
+    concat::fragment { "${be_name}_backend_block" :
+        source  => "/tmp/haproxy_backend_${be_name}.tmp",
+        target  => "${haproxy::config_dir}/haproxy.cfg",
+        order   => '105',
+    }
 
 }
 

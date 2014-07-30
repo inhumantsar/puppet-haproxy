@@ -49,8 +49,7 @@ define haproxy::frontend (
 
 	@@concat::fragment { "${fe_name}_frontend_header":
 		content => template($file_template),
-        tag     => [ "frontendblock_${fe_name}" ],
-        #target  => "${haproxy::config_dir}/haproxy.cfg",
+        tag     => "frontendblock_${fe_name}",
         target  => "/tmp/haproxy_frontend_${fe_name}.tmp",
         order   => '300',
 	}
@@ -60,6 +59,7 @@ define haproxy::frontend (
     concat::fragment { "${fe_name}_frontend_block" :
         source  => "/tmp/haproxy_frontend_${fe_name}.tmp",
         target  => "${haproxy::config_dir}/haproxy.cfg",
+        order   => '103',
     }
 
 }

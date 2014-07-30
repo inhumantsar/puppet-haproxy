@@ -23,32 +23,31 @@
 #   Array of options used for this directive. Please refeer to official HaProxy documentation to see which options tou can use.
 #
 define haproxy::backend::appsession (
-  $backend_name,
-  $cookie_name      = '',
-  $file_template    = 'haproxy/backend/appsession.erb',
-  $length           = 52,
-  $session_timeout  = '30m',
-  $options          = '',
-) {
+	$backend_name,
+	$cookie_name		= '',
+	$file_template		= 'haproxy/backend/appsession.erb',
+	$length			    = 52,
+	$session_timeout	= '30m',
+	$options			= '',
+)
+{
 
-  if !defined(Haproxy::Backend[$backend_name]) {
-    fail ("No Haproxy::Backend[$backend_name] is defined!")
-  }
+	$appsession_cookie= $cookie_name? {
+		''		=> $name,
+		default => $cookie_name,
+	}
 
-  $appsession_cookie= $cookie_name? {
-    ''      => $name,
-    default => $cookie_name,
-  }
+	$array_options = is_array($options)? {
+		true	=> $options,
+		default => [ $options ]
+	}
 
-  $array_options = is_array($options)? {
-    true    => $options,
-    default => [ $options ]
-  }
+    @@concat::fragment { "${backend_name}_appsession_${appsession_cookie}":
+        content => template($file_template),
+        tag     => "backendblock_${backend_name}",
+        target  => "/tmp/haproxy_backend_${backend_name}.tmp",
+        order   => '202',
+    }
 
-  concat::fragment{"haproxy+002-${backend_name}-002-${name}.tmp":
-    content => template($file_template),
-    target  => "${haproxy::config}/haproxy.cfg",
-    order   => '202',
-  }
 
 }

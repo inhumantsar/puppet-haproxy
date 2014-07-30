@@ -61,21 +61,23 @@ define haproxy::backend::server
 		fail ("No Haproxy::Backend[$backend] is defined!")
 	}
 
-	$server_name = $server_name ? {
+	$server = $server_name ? {
 		''			=> $name,
 		default => $server_name,
 	}
 
-	$host = $port ? {
+	$address = $port ? {
 		''			=> $host,
 		default => "${host}:${port}",
 	}
 
-	concat::fragment {"haproxy+002-${backend}-005-${server_name}.tmp":
-		content => template($file_template),
-        target  => "${haproxy::config_dir}/haproxy.cfg",
-        order   => '205',
-	}
+    @@concat::fragment { "${backend}_server_${name}":
+        content => template($file_template),
+        tag     => "backendblock_${backend}",
+        target  => "/tmp/haproxy_backend_${backend}.tmp",
+        order   => '203',
+    }
+
 }
 
 
