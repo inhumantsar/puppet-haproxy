@@ -1,8 +1,6 @@
 
-backend <%= be_name %>
-    mode <%= mode %>
-<% @options.sort.each do |key, val| -%>
-<% Array(val).each do |option| -%>
-    <%= key %>  <%= option %>
+backend <%= @be_name %>
+<% if @mode != '' -%>
+    mode <%= @mode %>
 <% end -%>
-<% end -%>
+<%= scope.function_template(['haproxy/fragment_options.erb']) -%>
