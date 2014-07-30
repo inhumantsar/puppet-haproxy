@@ -27,19 +27,14 @@
 #
 define haproxy::listen (
 	$bind,
-	$port,
 	$listen_name		= '',
 	$file_template		= 'haproxy/haproxy_listen_header.erb',
-	$mode		        = 'tcp',
+	$mode		        = '',
 	$options			= '',
 	$monitor			= true,
 ) {
 
-	if ($mode != 'http') and ($mode != 'tcp') {
-		fail ('mode paramater must be http or tcp')
-	}
-
-	$ls_name = $listen_name?{
+	$ls_name = $listen_name ? {
 		''			=> $name,
 		default => $listen_name,
 	}
@@ -47,10 +42,6 @@ define haproxy::listen (
 	$array_options = is_array($options)? {
 		true		=> $options,
 		default => [ $options ],
-	}
-
-	if $bind !~ /[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/ {
-		fail('invalid ip_address value present in bind')
 	}
 
     concat { "/tmp/haproxy_listen_${ls_name}.tmp" : }
@@ -62,7 +53,7 @@ define haproxy::listen (
         order   => '300',
     }
 
-    Concat::Fragment <<| tag == "listenblock_${ls_name}" |>>
+    Concat::Fragment <<| tag == "listenblock_${name}" |>>
 
     concat::fragment { "${ls_name}_listen_block" :
         source  => "/tmp/haproxy_listen_${ls_name}.tmp",
