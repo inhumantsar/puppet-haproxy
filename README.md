@@ -168,7 +168,7 @@ ACLs can be applied to frontends, backends or listens. The name of one must be s
                                     # Param name is backend_name, frontend_name or listen_name
     		condition,
     		acl_name       = '',    # Defaults to $name
-    		use_backend    = '',    # Name of backend to use when matching ACL. Ignored when target_type == 'backend'
+    		use_backend    = '',    # Name of backend to use when matching ACL. Not a valid param for haproxy::backend::acl!
     		extra_acls     = [],    # Extra ACL names to apply to the use_backend line
         }
 
@@ -176,9 +176,8 @@ ACLs can be applied to frontends, backends or listens. The name of one must be s
 
 #### Code
 
-        haproxy::acl { 'is_test' :
-            target_name     => 'articolo_www',
-            target_type     => 'frontend',
+        haproxy::frontend::acl { 'is_test' :
+            frontend_name   => 'articolo_www',
             condition       => 'hdr_beg(host) -i test.articolo.lan',
             use_backend     => 'articolo_http_test',
         }
@@ -244,12 +243,11 @@ In the defined frontend we want to capture some cookies or header that will be l
           length        => 10
         }
 
-### haproxy::use_backend
+### haproxy::[frontend|listen]::use_backend
 Create use_backend lines manually, rather than within haproxy::acl
 
-        haproxy::use_backend { 'articolo_http':
-            target_name     => 'articolo_www',
-            target_type     => 'frontend',          # Can be frontend or listen
+        haproxy::[frontend|listen]::use_backend { 'articolo_http':
+            <target>_name   => 'articolo_www',      # frontend_name or listen_name
             backend_name    => 'articolo_http',
             if_acl          => [ 'acl_name' ]       # resource Haproxy::Acl['acl_name'] must exist
         }
