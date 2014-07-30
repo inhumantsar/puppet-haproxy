@@ -27,13 +27,9 @@ define haproxy::frontend (
 	$default_backend,
 	$frontend_name		= '',
 	$file_template		= 'haproxy/haproxy_frontend_header.erb',
-	$mode				= 'http',
+	$mode				= '',
 	$options			= {},
 ) {
-
-	if ($mode != 'http') and ($mode != 'tcp') {
-		fail ('mode paramater must be http or tcp')
-	}
 
 	$fe_name = $frontend_name ? {
 		''		=> $name,
