@@ -30,19 +30,18 @@ define haproxy::listen (
 	$listen_name		= '',
 	$file_template		= 'haproxy/haproxy_listen_header.erb',
 	$mode		        = '',
-	$options			= '',
-	$monitor			= true,
+	$options			= {},
 ) {
 
 	$ls_name = $listen_name ? {
-		''			=> $name,
+		''		=> $name,
 		default => $listen_name,
 	}
 
-	$array_options = is_array($options)? {
-		true		=> $options,
-		default => [ $options ],
-	}
+    $array_bind = is_array($bind) ? {
+        true    => $bind,
+        default => [ $bind ],
+    }
 
     concat { "/tmp/haproxy_listen_${ls_name}.tmp" : }
 
@@ -50,7 +49,7 @@ define haproxy::listen (
         content => template($file_template),
         tag     => "listenblock_${ls_name}",
         target  => "/tmp/haproxy_listen_${ls_name}.tmp",
-        order   => '300',
+        order   => '100',
     }
 
     Concat::Fragment <<| tag == "listenblock_${name}" |>>
@@ -58,7 +57,7 @@ define haproxy::listen (
     concat::fragment { "${ls_name}_listen_block" :
         source  => "/tmp/haproxy_listen_${ls_name}.tmp",
         target  => "${haproxy::config_dir}/haproxy.cfg",
-        order   => '104',
+        order   => '101',
     }
 
 

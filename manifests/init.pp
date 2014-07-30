@@ -2,11 +2,83 @@
 #
 # This class install HaProxy with some configurable params
 #
-# == Params TODO
+# == Params
 #
-# [*paramname*]
-#	 some stuff about the param
+# [*package_name*]
+#	string. name of the package manager package to install. default: haproxy
 #
+# [*service_name*]
+#   string. what your OS calls the service. default: haproxy
+#
+# [*service_ensure*]
+#   string. should puppet start/stop haproxy? default: running
+#
+# [*service_enable*]
+#   boolean. set haproxy to launch at boot? default: true
+#
+# [*service_reload*]
+#   boolean. reload haproxy after a config change? default: true
+#
+# [*service_user*]
+#   string. username to run the service as. default: haproxy
+#
+# [*service_group*]
+#   string. group to run the service under. default: haproxy
+#
+# [*sock_path*]
+#   string. full path to socket file. default: /var/run/haproxy/haproxy.sock
+#
+# [*log_dir*]
+#   string. full path to logging directory. default: /var/log/haproxy
+#
+# [*archive_log_dir*]
+#   string. path to archive logs, for logrotate. default: /var/log
+#
+# [*config_dir*]
+#   string. path to haproxy's config directory. default: /etc/haproxy
+#
+# [*default_config_dir*]
+#   string. path to haproxy's defaults file. default: /etc/default/haproxy
+#
+# [*enable_stats*]
+#   boolean. enable stats logging. default: true
+#   NOTE: a listen stanza still needs to be configured for stats to work.
+#
+# [*enable_hatop*]
+#   boolean. install hatop from tarball to /usr/local/bin/. default: true
+#
+# [*global_options*]
+#   hash. override sane defaults. the hash provided will be merged with the
+#         defaults listed below so you only need to provide one to override one.
+#   defaults:
+#			'log'     => "127.0.0.1 local0",
+#			'chroot'  => '/var/lib/haproxy',
+#			'pidfile' => '/var/run/haproxy.pid',
+#			'maxconn' => '4000',
+#			'user'    => 'haproxy',
+#			'group'   => 'haproxy',
+#			'daemon'  => '',
+#			'stats'   => 'socket /var/lib/haproxy/stats'
+#
+# [*defaults_options*]
+#   hash. set of values for haproxy.cfg's defaults section.
+#   NOTE: if any part of this hash is overridden, the whole thing must be
+#         overridden.
+#   defaults:
+#			'log'       => 'global',
+#			'stats'     => 'enable',
+#			'option'    => 'redispatch',
+#			'retries'   => '3',
+#			'maxconn'   => '8000',
+#			'timeout'   => [
+#			'http-request 10s',
+#			'queue 1m',
+#			'connect 10s',
+#			'client 1m',
+#			'server 1m',
+#			'check 10s',
+#			],
+#			
 class haproxy 
 (
     $package_name       	= 'haproxy',
@@ -22,8 +94,6 @@ class haproxy
     $config_dir         	= '/etc/haproxy',
     $default_config_path 	= '/etc/default/haproxy',
 	$enable_stats			= true,
-	$stats_user				= 'haproxystats',
-	$stats_pass				= '',
 	$enable_hatop			= true,
     $global_options         = {},
 	$defaults_options       = {
@@ -79,9 +149,6 @@ class haproxy
 	validate_absolute_path($config_dir)
 	validate_absolute_path($default_config_path)
 	validate_bool($enable_stats)
-	if ($enable_stats and (($stats_user == '') or ($stats_pass == ''))) {
-		fail('if enable_stats is true you must specify stats_user and stats_pass')
-	}
 	validate_bool($enable_hatop)
     if (!$global_options  or $global_options == '') {
         fail('global_options empty or malformed.')

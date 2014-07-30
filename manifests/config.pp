@@ -15,8 +15,8 @@ class haproxy::config
 		file { $log_dir :
 			ensure  => directory,
 			mode	=> 664,
-			owner	=> 'syslog',
-			group	=> 'adm',
+			owner	=> "${service_user}",
+			group	=> "${service_group}",
 		}
 	}
 

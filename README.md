@@ -8,7 +8,7 @@ This module will manage HAProxy installation and configurations. Configuration i
 * concat
 
 ## Tested on
-* Nothing yet! CentOS 6 soon.
+* CentOS 6
  
 ## haproxy
 
@@ -28,8 +28,6 @@ Start by overriding any of the default settings you might wish to.
             config_dir             => '/etc/haproxy',
             default_config_path    => '/etc/default/haproxy',
             enable_stats           => true,
-            stats_user             => 'haproxystats',
-            stats_pass             => '',
             enable_hatop           => true,         # true: install hatop 0.77 to /usr/local/bin
             global_options         => {
                 'log'     => "127.0.0.1 local0",
@@ -68,7 +66,8 @@ Start by overriding any of the default settings you might wish to.
             options        = {
                 'balance'   => 'roundrobin',
             },
-            mode           = 'http',
+            mode           = '',    # Can be 'http', 'tcp' or blank if mode is specified in defaults
+            servers        = {},    # Hash of servers built for haproxy::backend::server
         }
 
 ### Example
@@ -77,10 +76,18 @@ Start by overriding any of the default settings you might wish to.
 
         haproxy::backend { 'articolo_http' :
             options   => {
-                option  => [ 'httpclose' , 'forwardfor' ],
-                balance => 'roundrobin',
+                'option'  => [ 'httpclose' , 'forwardfor' ],
+                'balance' => 'roundrobin',
             }
             mode      => 'http',
+            servers   => {
+                'articolo_www01' => {
+                    'host'        => 'www01.articolo.lan',
+                    'port'        => '8080',
+                    'params'      => 'check weight 100',
+                    'server_name' => 'www01',
+                }
+            },
         }
 
 #### Result
@@ -90,6 +97,7 @@ Start by overriding any of the default settings you might wish to.
             balance roundrobin
             option httpclose
             option forwardfor
+            server  www01 www01.articolo.lan check weight 100
 
 ## haproxy::backend::server
 
@@ -108,9 +116,9 @@ Start by overriding any of the default settings you might wish to.
 
 #### Code
 
-        haproxy::backend::server { 'articolo_www01' :
+        haproxy::backend::server { 'articolo_www02' :
             backend     => 'articolo_http',
-            host        => 'www01.articolo.lan',
+            host        => 'www02.articolo.lan',
             port        => '8080',
             params      => 'check weight 100',
             server_name => 'www01',
@@ -149,15 +157,15 @@ Start by overriding any of the default settings you might wish to.
             bind 10.0.1.5:88
             default_backend articolo_http
 
-## haproxy::acl
+## haproxy::[frontend|backend|listen]::acl     
 
-ACLs can be applied to frontends, backends or listens. One of them must be specified in the parameters. A use_backend can be added to frontends and listens at this time as well. If extra acl names are needed for the use backend, they can be added with the extra_acls parameter as strings in an array.
+ACLs can be applied to frontends, backends or listens. The name of one must be specified in the parameters. A use_backend can be added to frontends and listens at this time as well. If extra acl names are needed for the use backend, they can be added with the extra_acls parameter as strings in an array.
 
 ### Defaults
 
         haproxy::acl { "$name" :
-    		target_name,            # Name of the backend, frontend or listen to add the ACL to
-    		target_type,            # Must be 'backend', 'frontend', or 'listen'.
+    		<target>_name,          # Name of the backend, frontend or listen to add the ACL to.
+                                    # Param name is backend_name, frontend_name or listen_name
     		condition,
     		acl_name       = '',    # Defaults to $name
     		use_backend    = '',    # Name of backend to use when matching ACL. Ignored when target_type == 'backend'

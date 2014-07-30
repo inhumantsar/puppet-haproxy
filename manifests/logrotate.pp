@@ -2,6 +2,11 @@
 #
 # This class enables logorotate of logfile created by haproxy
 #
+# == Params
+#
+# [*log_dir*]
+#   string. full path to log directory.
+#
 class haproxy::logrotate
 (
     $log_dir,
