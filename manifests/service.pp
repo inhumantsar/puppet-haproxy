@@ -15,11 +15,12 @@ class haproxy::service
 	}
     
     if $service_reload {
-    	exec {"${service_name} reload":
-	    	command		=> "/etc/init.d/${service_name} reload",
-		    refreshonly => true,
-    		subscribe	=> [ Concat_build['haproxy'], File["${config_dir}subnet_softec.lst"] ]
-	    }
+        exec { "${service_name}_reload" :
+            command     => "/sbin/service ${service_name} reload",
+            subscribe   => Concat["${config_dir}/haproxy.cfg"],
+        }
     }
+
+
 
 }
