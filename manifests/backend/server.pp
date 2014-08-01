@@ -46,9 +46,9 @@ define haproxy::backend::server
 		default => "${host}:${port}",
 	}
 
-    @@concat::fragment { "${backend}_server_${name}":
+    @@concat::fragment { "${::fqdn}-${backend}_server_${name}":
         content => template($file_template),
-        tag     => "backendblock_${backend}",
+        tag     => "${::fqdn}-backendblock_${backend}",
         target  => "/tmp/haproxy_backend_${backend}.tmp",
         order   => '203',
     }

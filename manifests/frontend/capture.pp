@@ -40,9 +40,9 @@ define haproxy::frontend::capture (
 		default     => $capture_name,
 	}
 
-	@@concat::fragment { "${frontend_name}_capture_${capture}":
+	@@concat::fragment { "${::fqdn}-${frontend_name}_capture_${capture}":
         content => template($file_template),
-        tag     => "frontendblock_${frontend_name}",
+        tag     => "${::fqdn}-frontendblock_${frontend_name}",
         target  => "/tmp/haproxy_frontend_${frontend_name}.tmp",
         order   => '301',
     }

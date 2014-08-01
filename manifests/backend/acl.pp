@@ -32,9 +32,9 @@ define haproxy::backend::acl (
 		default => $acl_name,
 	}
 
-    @@concat::fragment { "${backend_name}_acl_${acl}":
+    @@concat::fragment { "${::fqdn}-${backend_name}_acl_${acl}":
         content => template($file_template),
-        tag     => "backendblock_${backend_name}",
+        tag     => "${::fqdn}-backendblock_${backend_name}",
         target  => "/tmp/haproxy_backend_${backend_name}.tmp",
         order   => '201',
     }

@@ -33,9 +33,9 @@ define haproxy::listen::acl (
 		default => $acl_name,
 	}
 
-	@@concat::fragment { "${listen_name}_acl_${acl}":
+	@@concat::fragment { "${::fqdn}-${listen_name}_acl_${acl}":
 		content => template($file_template),
-        tag     => "listenblock_${listen_name}",
+        tag     => "${::fqdn}-listenblock_${listen_name}",
         target  => "/tmp/haproxy_listen_${listen_name}.tmp",
         order   => '302',
 	}

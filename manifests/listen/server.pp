@@ -43,9 +43,9 @@ define haproxy::listen::server
 		default => "${host}:${port}",
 	}
 
-    @@concat::fragment { "${listen}_server_${name}":
+    @@concat::fragment { "${::fqdn}-${listen}_server_${name}":
         content => template($file_template),
-        tag     => "listenblock_${listen}",
+        tag     => "${::fqdn}-listenblock_${listen}",
         target  => "/tmp/haproxy_listen_${listen}.tmp",
         order   => '203',
     }

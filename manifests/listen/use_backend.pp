@@ -27,8 +27,8 @@ define haproxy::listen::use_backend (
         $if_acl = [ $if_acl ]
     }
 
-    @@concat::fragment { "ls-${listen_name}_acl-${if_acl}_be-${backend_name}":
-        tag     => "listenblock_${listen_name}",
+    @@concat::fragment { "${::fqdn}-ls-${listen_name}_acl-${if_acl}_be-${backend_name}":
+        tag     => "${::fqdn}-listenblock_${listen_name}",
         content => template($file_template),
         #target  => "${haproxy::config_dir}/haproxy.cfg",
         target  => "/tmp/haproxy_listen_${listen_name}.tmp",

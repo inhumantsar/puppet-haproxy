@@ -43,20 +43,20 @@ define haproxy::frontend (
 
     concat { "/tmp/haproxy_frontend_${fe_name}.tmp" : }
 
-	@@concat::fragment { "${fe_name}_frontend_header":
+	@@concat::fragment { "${::fqdn}-${fe_name}_frontend_header":
 		content => template($file_template),
-        tag     => "frontendblock_${fe_name}",
+        tag     => "${::fqdn}-frontendblock_${fe_name}",
         target  => "/tmp/haproxy_frontend_${fe_name}.tmp",
         order   => '300',
 	}
 
-    Concat::Fragment <<| tag == "frontendblock_${fe_name}" |>>
+    Concat::Fragment <<| tag == "${::fqdn}-frontendblock_${fe_name}" |>>
 
     concat::fragment { "${fe_name}_frontend_block" :
         source  => "/tmp/haproxy_frontend_${fe_name}.tmp",
         target  => "${haproxy::config_dir}/haproxy.cfg",
         order   => '103',
-        require => [ Concat["/tmp/haproxy_frontend_${fe_name}.tmp"], Concat::Fragment["${fe_name}_frontend_header"] ],
+        require => [ Concat["/tmp/haproxy_frontend_${fe_name}.tmp"], Concat::Fragment["${::fqdn}-${fe_name}_frontend_header"] ],
     }
 
 }

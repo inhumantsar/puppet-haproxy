@@ -45,20 +45,20 @@ define haproxy::listen (
 
     concat { "/tmp/haproxy_listen_${ls_name}.tmp" : }
 
-    @@concat::fragment { "${ls_name}_listen_header":
+    @@concat::fragment { "${::fqdn}-${ls_name}_listen_header":
         content => template($file_template),
-        tag     => "listenblock_${ls_name}",
+        tag     => "${::fqdn}-listenblock_${ls_name}",
         target  => "/tmp/haproxy_listen_${ls_name}.tmp",
         order   => '100',
     }
 
-    Concat::Fragment <<| tag == "listenblock_${name}" |>>
+    Concat::Fragment <<| tag == "${::fqdn}-listenblock_${name}" |>>
 
     concat::fragment { "${ls_name}_listen_block" :
         source  => "/tmp/haproxy_listen_${ls_name}.tmp",
         target  => "${haproxy::config_dir}/haproxy.cfg",
         order   => '101',
-        require => [ Concat["/tmp/haproxy_listen_${ls_name}.tmp"], Concat::Fragment["${ls_name}_listen_header"] ],
+        require => [ Concat["/tmp/haproxy_listen_${ls_name}.tmp"], Concat::Fragment["${::fqdn}-${ls_name}_listen_header"] ],
     }
 
 

@@ -33,9 +33,9 @@ define haproxy::frontend::acl (
 		default => $acl_name,
 	}
 
-	@@concat::fragment { "${frontend_name}_acl_${acl}":
+	@@concat::fragment { "${::fqdn}-${frontend_name}_acl_${acl}":
 		content => template($file_template),
-        tag     => "frontendblock_${frontend_name}",
+        tag     => "${::fqdn}-frontendblock_${frontend_name}",
         target  => "/tmp/haproxy_frontend_${frontend_name}.tmp",
         order   => '302',
 	}

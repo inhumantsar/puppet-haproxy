@@ -27,12 +27,10 @@ define haproxy::frontend::use_backend (
         $if_acl = [ $if_acl ]
     }
 
-    @@concat::fragment { "fe-${frontend_name}_acl-${if_acl}_be-${backend_name}":
-        tag     => "frontendblock_${frontend_name}",
+    @@concat::fragment { "${::fqdn}-fe-${frontend_name}_acl-${if_acl}_be-${backend_name}":
+        tag     => "${::fqdn}-frontendblock_${frontend_name}",
         content => template($file_template),
-        #target  => "${haproxy::config_dir}/haproxy.cfg",
         target  => "/tmp/haproxy_frontend_${frontend_name}.tmp",
         order   => '303',
-        #require => [ Haproxy::Frontend[$frontend_name], Haproxy::Backend[$backend_name], ],
     }
 }

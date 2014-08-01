@@ -43,9 +43,9 @@ define haproxy::backend (
     concat { "/tmp/haproxy_backend_${be_name}.tmp" : }
 
     ### add backend
-    @@concat::fragment { "${be_name}_backend_header":
+    @@concat::fragment { "${::fqdn}-${be_name}_backend_header":
         content => template($file_template),
-        tag     => "backendblock_${be_name}",
+        tag     => "${::fqdn}-backendblock_${be_name}",
         target  => "/tmp/haproxy_backend_${be_name}.tmp",
         order   => '200',
     }
@@ -55,7 +55,7 @@ define haproxy::backend (
     create_resources('haproxy::backend::server', $servers, $server_defaults)
 
     ### collect and realise all acls, servers, etc. associated with the backend
-    Concat::Fragment <<| tag == "backendblock_${be_name}" |>>
+    Concat::Fragment <<| tag == "${::fqdn}-backendblock_${be_name}" |>>
 
     ### add contents of temp file to main config file
     # i really dislike using lookups like haproxy::config_dir but it works
@@ -63,7 +63,7 @@ define haproxy::backend (
         source  => "/tmp/haproxy_backend_${be_name}.tmp",
         target  => "${haproxy::config_dir}/haproxy.cfg",
         order   => '105',
-        require => [ Concat["/tmp/haproxy_backend_${be_name}.tmp"], Concat::Fragment["${be_name}_backend_header"] ],
+        require => [ Concat["/tmp/haproxy_backend_${be_name}.tmp"], Concat::Fragment["${::fqdn}-${be_name}_backend_header"] ],
     }
 
 }

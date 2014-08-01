@@ -50,9 +50,9 @@ define haproxy::backend::add_header (
 		default => ":\\ $value",
 	}
 
-    @@concat::fragment { "${backend_name}_add_header_${header}":
+    @@concat::fragment { "${::fqdn}-${backend_name}_add_header_${header}":
         content => template($file_template),
-        tag     => "backendblock_${backend_name}",
+        tag     => "${::fqdn}-backendblock_${backend_name}",
         target  => "/tmp/haproxy_backend_${backend_name}.tmp",
         order   => '202',
     }

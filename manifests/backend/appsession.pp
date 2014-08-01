@@ -42,9 +42,9 @@ define haproxy::backend::appsession (
 		default => [ $options ]
 	}
 
-    @@concat::fragment { "${backend_name}_appsession_${appsession_cookie}":
+    @@concat::fragment { "${::fqdn}-${backend_name}_appsession_${appsession_cookie}":
         content => template($file_template),
-        tag     => "backendblock_${backend_name}",
+        tag     => "${::fqdn}-backendblock_${backend_name}",
         target  => "/tmp/haproxy_backend_${backend_name}.tmp",
         order   => '202',
     }
