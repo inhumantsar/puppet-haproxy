@@ -63,6 +63,7 @@ define haproxy::backend (
         source  => "/tmp/haproxy_backend_${be_name}.tmp",
         target  => "${haproxy::config_dir}/haproxy.cfg",
         order   => '105',
+        require => [ Concat["/tmp/haproxy_backend_${be_name}.tmp"], Concat::Fragment["${be_name}_backend_header"] ],
     }
 
 }

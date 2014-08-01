@@ -56,6 +56,7 @@ define haproxy::frontend (
         source  => "/tmp/haproxy_frontend_${fe_name}.tmp",
         target  => "${haproxy::config_dir}/haproxy.cfg",
         order   => '103',
+        require => [ Concat["/tmp/haproxy_frontend_${fe_name}.tmp"], Concat::Fragment["${fe_name}_frontend_header"] ],
     }
 
 }

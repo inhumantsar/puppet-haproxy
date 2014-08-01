@@ -58,6 +58,7 @@ define haproxy::listen (
         source  => "/tmp/haproxy_listen_${ls_name}.tmp",
         target  => "${haproxy::config_dir}/haproxy.cfg",
         order   => '101',
+        require => [ Concat["/tmp/haproxy_listen_${ls_name}.tmp"], Concat::Fragment["${ls_name}_listen_header"] ],
     }
 
 
