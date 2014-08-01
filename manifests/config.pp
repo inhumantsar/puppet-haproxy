@@ -46,13 +46,6 @@ class haproxy::config
 		],
 	}
 
-    if $service_reload {
-        exec { 'reload_haproxy' :
-            command     => '/sbin/service haproxy reload',
-            subscribe   => Concat["${config_dir}/haproxy.cfg"],
-        }
-    }
-
 	file { '/var/run/haproxy':
 		ensure  => directory,
 		mode	=> '0755',
