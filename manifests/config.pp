@@ -6,7 +6,6 @@ class haproxy::config
     $service_enable,
     $service_user,
     $service_group,
-    $service_reload,
     $global_options,
     $defaults_options,
 )
